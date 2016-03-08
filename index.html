@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="utf-8">
+		<script src="http://d3js.org/d3.v3.min.js"></script>
+		<style type="text/css">
+		
+		.line {
+		fill: none;
+		stroke: steelblue;
+		stroke-width: 1.5px;
+		}
+		
+		.axis path,
+		.axis line{
+			fill: none;
+			stroke: black;
+			shape-rendering: crispEdges;
+		}
+		.axis text{
+			font-family: "sans-serif";
+			font-size: 11px;
+		}
+		
+		.svgbox { 
+		margin: 20px;
+		}
+		
+		
+		</style>
+	</head>
+	<body>
+		<script type="text/javascript">
+		
+		//Width & height
+		var svgWidth = 800;
+		var svgHeight = 550;
+		var padding = 25;
+		
+		//Dynamic, random dataset
+		var dataset = [];
+		var numDataPoints = 50;
+		var yRange = Math.random() * 100;
+		for (var i = 0; i < numDataPoints; i++) {
+			var newNumber = Math.round(Math.random() * yRange);
+			dataset.push([i, newNumber]);
+		}
+		
+		//Scales
+		var xScale = d3.scale.linear()
+							 .domain([0, dataset.length])
+							 .range([padding, svgWidth - padding]);
+							 
+		var yScale = d3.scale.linear()
+							 .domain([0, d3.max(dataset, function(d) { return d[1]; })])
+							 .range([svgHeight - padding, padding]);
+							 
+		//Axis
+		var xAxis = d3.svg.axis()
+		                  .scale(xScale)
+						  .orient("bottom")
+						  .ticks(8);
+						  
+		var yAxis = d3.svg.axis()
+						  .scale(yScale)
+						  .orient("left")
+						  .ticks(6);
+		
+		//Line
+		var line = d3.svg.line()
+						 .x(function(d) { return xScale(d[0]); })
+                         .y(function(d) { return yScale(d[1]); })
+                         .interpolate("bundle");
+		
+		var svg = d3.select("body")
+					.append("svg")
+					.attr("width", svgWidth)
+					.attr("height", svgHeight)
+					.attr("class", "svgbox");
+					 
+		svg.append("path")
+		   .attr("class", "line")
+		   .attr("d", line(dataset));
+		   
+		svg.append("g")
+		   .attr("class", "axis")
+		   .attr("transform", "translate(0, " + (svgHeight - padding) + ")")
+		   .call(xAxis);
+		   
+		svg.append("g")
+		   .attr("class", "axis")
+		   .attr("transform", "translate(" + padding + ",0)")
+		   .call(yAxis);
+		
+		</script>
+	</body>
+</html>
