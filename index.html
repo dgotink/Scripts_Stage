@@ -5,9 +5,21 @@
 		<script src="http://d3js.org/d3.v3.min.js"></script>
 		<style type="text/css">
 		
-		.line {
+		.line1 {
 		fill: none;
 		stroke: steelblue;
+		stroke-width: 1.5px;
+		}
+		
+		.line2 {
+		fill: none;
+		stroke: red;
+		stroke-width: 1.5px;
+		}
+		
+		.line3 {
+		fill: none;
+		stroke: green;
 		stroke-width: 1.5px;
 		}
 		
@@ -41,18 +53,25 @@
 		var dataset = [];
 		var numDataPoints = 50;
 		var yRange = Math.random() * 100;
+		var yyRange = Math.random() * 80;
+		var yyyRange = Math.random() * 110;
 		for (var i = 0; i < numDataPoints; i++) {
-			var newNumber = Math.round(Math.random() * yRange);
-			dataset.push([i, newNumber]);
+			var newNumber1 = Math.round(Math.random() * yRange);
+			var newNumber2 = Math.round(Math.random() * yyRange);
+			var newNumber3 = Math.round(Math.random() * yyyRange);
+			dataset.push([i, newNumber1, newNumber2, newNumber3]);
 		}
 		
 		//Scales
 		var xScale = d3.scale.linear()
 							 .domain([0, dataset.length])
 							 .range([padding, svgWidth - padding]);
+		
+		var minY = d3.min(dataset, function(d) { return Math.min(d[1], d[2], d[3]) ; }),
+			maxY = d3.max(dataset, function(d) { return Math.max(d[1], d[2], d[3]) ; });
 							 
 		var yScale = d3.scale.linear()
-							 .domain([0, d3.max(dataset, function(d) { return d[1]; })])
+							 .domain([minY, maxY])
 							 .range([svgHeight - padding, padding]);
 							 
 		//Axis
@@ -66,10 +85,20 @@
 						  .orient("left")
 						  .ticks(6);
 		
-		//Line
-		var line = d3.svg.line()
+		//Lines
+		var line1 = d3.svg.line()
 						 .x(function(d) { return xScale(d[0]); })
                          .y(function(d) { return yScale(d[1]); })
+                         .interpolate("bundle");
+						 
+		var line2 = d3.svg.line()
+						 .x(function(d) { return xScale(d[0]); })
+                         .y(function(d) { return yScale(d[2]); })
+                         .interpolate("bundle");
+						 
+		var line3 = d3.svg.line()
+						 .x(function(d) { return xScale(d[0]); })
+                         .y(function(d) { return yScale(d[3]); })
                          .interpolate("bundle");
 		
 		var svg = d3.select("body")
@@ -79,8 +108,16 @@
 					.attr("class", "svgbox");
 					 
 		svg.append("path")
-		   .attr("class", "line")
-		   .attr("d", line(dataset));
+		   .attr("class", "line1")
+		   .attr("d", line1(dataset));
+		   
+		svg.append("path")
+		   .attr("class", "line2")
+		   .attr("d", line2(dataset));
+		   
+		svg.append("path")
+		   .attr("class", "line3")
+		   .attr("d", line3(dataset));
 		   
 		svg.append("g")
 		   .attr("class", "axis")
