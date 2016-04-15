@@ -37,21 +37,21 @@ MongoClient.connect(url, function(err, db) {
 							var mongoExport = spawn('mongoexport', [ '--host', '134.58.106.9', '--authenticationDatabase', 
 							'admin', '--username', 'dries_gotink', '--password', 'r[x]dIntern!1', '--db', db.databaseName,
 							'--collection', name.name, /*'--query', '{"created_at": { "$gte": new Date(' + timeWindow + ') } }',*/ '--jsonArray',
-							'-o', dbName +'_' + name.name + '.json']);
-							mongoExport.on('close', (code) => {
+							'-o', 'dump/' + dbName +'_' + name.name + '.json']);
+							mongoExport.on('close', function() {
 								//When a collection is exported, import it again in the recent db
 								console.log('Child process completed: ', name.name, '. Now continuing to import this data...');
 								var mongoImport = spawn('mongoimport', ['--db', 'recent', '--collection', dbName + '_' + name.name, 
-								'--type', 'json', '--file', dbName +'_' + name.name + '.json']);
-								mongoImport.on('close', (code) => {
+								'--type', 'json', '--file', 'dump/' + dbName +'_' + name.name + '.json']);
+								mongoImport.on('close', function() {
 									console.log('Import collection completed: ', dbName + '_' + name.name, '. Now to rewrite the json file.');		
-									fs.readFile(dbName +'_' + name.name + '.json', 'utf8', function(err, data){
+									fs.readFile('dump/' + dbName +'_' + name.name + '.json', 'utf8', function(err, data){
 										if (err) 
 											console.log('Unable to read file. Error:', err);
 										else {
 											console.log('Read file, proceeding with writing data.');
 											var text = '{ "name": "' +  dbName +'_' + name.name + '",' + '"data":' + data + '}'
-											fs.writeFile(dbName +'_' + name.name + '.json', text, function(err){
+											fs.writeFile('D:/Workspaces/Netbeans Workspace/CityDashBoard/src/main/webapp/data/' + dbName +'_' + name.name + '.json', text, function(err){
 												if (err) 
 													console.log('Unable to write to file. Error:', err);
 												else
